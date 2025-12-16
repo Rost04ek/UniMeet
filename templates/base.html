@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}UniMeet{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/image.png') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container nav-layout">
+            <div class="nav-left">
+                <ul class="nav-menu nav-menu-left">
+                    <li><a href="{{ url_for('index') }}" class="btn btn-ghost">Головна</a></li>
+                    {% set role = session.get('role') %}
+                    {% if session.get('user_id') and role in ['organizer', 'admin'] %}
+                        <li><a href="{{ url_for('my_events') }}" class="btn btn-ghost">Мої події</a></li>
+                        <li><a href="{{ url_for('create_event') }}" class="btn btn-ghost">Створити подію</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <div class="nav-brand">
+                <a href="{{ url_for('index') }}" aria-label="UniMeet">
+                    <img src="{{ url_for('static', filename='images/image.png') }}" alt="UniMeet" class="nav-logo">
+                </a>
+            </div>
+
+            <ul class="nav-menu nav-menu-right">
+                {% if session.user_id %}
+                    <li><a href="{{ url_for('profile') }}" class="btn btn-ghost">Профіль</a></li>
+                    <li><a href="{{ url_for('logout') }}" class="btn btn-ghost">Вийти</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}" class="btn btn-ghost">Увійти</a></li>
+                    <li><a href="{{ url_for('register') }}" class="btn btn-ghost">Реєстрація</a></li>
+                {% endif %}
+                <li>
+                    <button id="theme-toggle" class="btn btn-ghost" type="button" aria-label="Темна тема">🌙</button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2025 UniMeet</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/uk.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

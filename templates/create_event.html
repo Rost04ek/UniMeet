@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}Створити подію{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container">
+        <h2>Створити нову подію</h2>
+        
+        <form method="POST" action="{{ url_for('create_event') }}" class="form">
+            <div class="form-group">
+                <label for="title">Назва події: <span class="required-star">*</span></label>
+                <input type="text" id="title" name="title" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Опис: <span class="required-star">*</span></label>
+                <textarea id="description" name="description" rows="5" required style="resize: none;"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="category_id">Категорія: <span class="required-star">*</span></label>
+                <select id="category_id" name="category_id" required>
+                    <option value="">Оберіть категорію</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="is_online" name="is_online" value="1">
+                    <span class="checkbox-custom"></span>
+                    <span class="checkbox-text">Онлайн подія</span>
+                    <span class="checkbox-status-dot"></span>
+                </label>
+            </div>
+            
+            <div class="form-group" id="location-group">
+                <label for="location">Місце проведення: <span class="required-star">*</span></label>
+                <input type="text" id="location" name="location" required>
+            </div>
+            
+            <div class="form-group" id="online-link-group" style="display: none;">
+                <label for="online_link">Посилання на онлайн подію: <span class="required-star">*</span></label>
+                <input type="url" id="online_link" name="online_link" placeholder="https://zoom.us/j/123456789">
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="event_date">Дата і час події: <span class="required-star">*</span></label>
+                    <input type="datetime-local" id="event_date" name="event_date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="registration_deadline">Кінцевий термін реєстрації: <span class="required-star">*</span></label>
+                    <input type="datetime-local" id="registration_deadline" name="registration_deadline" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="max_participants">Максимальна кількість учасників: <span class="required-star">*</span></label>
+                <input type="number" id="max_participants" name="max_participants" value="100" min="1" required>
+            </div>
+            
+            <button type="submit" class="btn btn-success">Створити подію</button>
+            <a href="{{ url_for('my_events') }}" class="btn btn-secondary">Скасувати</a>
+        </form>
+    </div>
+</div>
+
+<style>
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding: 1.25rem 1.5rem;
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.checkbox-label:hover {
+    border-color: var(--primary-color);
+    background: rgba(var(--primary-rgb), 0.05);
+    box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.15);
+    transform: translateY(-1px);
+}
+
+.checkbox-label input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    outline: none;
+    box-shadow: none;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 0;
+    height: 0;
+    margin: 0;
+}
+
+.checkbox-custom {
+    width: 28px;
+    height: 28px;
+    border: 2.5px solid var(--border-color);
+    border-radius: 0.5rem;
+    margin-right: 1rem;
+    position: relative;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    background: var(--card-bg);
+}
+
+.checkbox-label:hover .checkbox-custom {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+
+.checkbox-label input[type="checkbox"]:checked ~ .checkbox-custom {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    transform: scale(1.05);
+}
+
+.checkbox-label input[type="checkbox"]:checked ~ .checkbox-custom::after {
+    content: '';
+}
+
+.checkbox-text {
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--text-color);
+    transition: all 0.3s ease;
+    margin-right: 0.25rem;
+}
+
+.checkbox-label input[type="checkbox"]:checked ~ .checkbox-text {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.checkbox-status-dot {
+    display: inline-block;
+    margin-left: 0.25rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ef4444;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+.checkbox-label input[type="checkbox"]:checked ~ .checkbox-status-dot {
+    background: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const isOnlineCheckbox = document.getElementById('is_online');
+    const locationGroup = document.getElementById('location-group');
+    const onlineLinkGroup = document.getElementById('online-link-group');
+    const locationInput = document.getElementById('location');
+    const onlineLinkInput = document.getElementById('online_link');
+    
+    isOnlineCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            locationGroup.style.display = 'none';
+            onlineLinkGroup.style.display = 'block';
+            locationInput.required = false;
+            onlineLinkInput.required = true;
+        } else {
+            locationGroup.style.display = 'block';
+            onlineLinkGroup.style.display = 'none';
+            locationInput.required = true;
+            onlineLinkInput.required = false;
+        }
+    });
+
+    // Ініціалізація стану при завантаженні сторінки
+    isOnlineCheckbox.dispatchEvent(new Event('change'));
+});
+</script>
+{% endblock %}

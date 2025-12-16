@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Редагувати подію{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container">
+        <h2>Редагувати подію</h2>
+        
+        <form method="POST" action="{{ url_for('edit_event', event_id=event.id) }}" class="form">
+            <div class="form-group">
+                <label for="title">Назва події:</label>
+                <input type="text" id="title" name="title" value="{{ event.title }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Опис:</label>
+                <textarea id="description" name="description" rows="5" required>{{ event.description }}</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="category_id">Категорія:</label>
+                <select id="category_id" name="category_id" required>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}" {% if category.id == event.category_id %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="location">Місце проведення:</label>
+                <input type="text" id="location" name="location" value="{{ event.location }}" required>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="event_date">Дата і час події:</label>
+                    <input type="datetime-local" id="event_date" name="event_date" 
+                           value="{{ event.event_date.strftime('%Y-%m-%dT%H:%M') }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="registration_deadline">Кінцевий термін реєстрації:</label>
+                    <input type="datetime-local" id="registration_deadline" name="registration_deadline" 
+                           value="{{ event.registration_deadline.strftime('%Y-%m-%dT%H:%M') }}" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="max_participants">Максимальна кількість учасників:</label>
+                    <input type="number" id="max_participants" name="max_participants" 
+                           value="{{ event.max_participants }}" min="1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="status">Статус події:</label>
+                    <select id="status" name="status" required>
+                        <option value="upcoming" {% if event.status == 'upcoming' %}selected{% endif %}>Майбутня</option>
+                        <option value="ongoing" {% if event.status == 'ongoing' %}selected{% endif %}>Поточна</option>
+                        <option value="completed" {% if event.status == 'completed' %}selected{% endif %}>Завершена</option>
+                        <option value="cancelled" {% if event.status == 'cancelled' %}selected{% endif %}>Скасована</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-success">Зберегти зміни</button>
+                <a href="{{ url_for('my_events') }}" class="btn btn-secondary">Скасувати</a>
+            </div>
+        </form>
+
+        <form method="POST" action="{{ url_for('delete_event', event_id=event.id) }}" onsubmit="return confirm('Видалити цю подію?');" class="form-actions" style="margin-top: 1rem;">
+            <button type="submit" class="btn btn-danger">Видалити подію</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

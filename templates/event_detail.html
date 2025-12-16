@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}{{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="event-detail">
+        <div class="event-detail-header">
+            <span class="event-category">{{ event.category_name }}</span>
+            <span class="event-status status-{{ event.status }}">{{ event.status|translate_status }}</span>
+        </div>
+        
+        <h1>{{ event.title }}</h1>
+        
+        <div class="event-meta">
+            <div class="meta-item">
+                <strong>📅 Дата проведення:</strong> {{ event.event_date.strftime('%d.%m.%Y о %H:%M') }}
+            </div>
+            <div class="meta-item">
+                <strong>📍 Місце:</strong> {{ event.location }}
+                {% if event.is_online and event.online_link %}
+                    <br>
+                    <strong>🔗 Посилання:</strong> <a href="{{ event.online_link }}" target="_blank" rel="noopener noreferrer">{{ event.online_link }}</a>
+                {% endif %}
+            </div>
+            <div class="meta-item">
+                <strong>👤 Організатор:</strong> {{ event.organizer_name }} ({{ event.organizer_email }})
+            </div>
+            <div class="meta-item">
+                <strong>📝 Реєстрація до:</strong> {{ event.registration_deadline.strftime('%d.%m.%Y') }}
+            </div>
+            <div class="meta-item">
+                <strong>👥 Учасників:</strong> {{ event.current_participants }}/{{ event.max_participants }}
+            </div>
+            {% if rating_data.count > 0 %}
+                <div class="meta-item">
+                    <strong>⭐ Рейтинг:</strong> {{ "%.1f"|format(rating_data.avg_rating) }} ({{ rating_data.count }} оцінок)
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="event-description">
+            <h2>Опис події</h2>
+            <p>{{ event.description }}</p>
+        </div>
+        
+        {% if session.user_id %}
+            <div class="event-actions">
+                {% if not is_registered and event.status == 'upcoming' %}
+                    {% if event.current_participants < event.max_participants %}
+                        <form method="POST" action="{{ url_for('register_for_event', event_id=event.id) }}">
+                            <button type="submit" class="btn btn-success">Зареєструватися на подію</button>
+                        </form>
+                    {% else %}
+                        <p class="alert alert-warning">Вибачте, всі місця зайняті</p>
+                    {% endif %}
+                {% elif is_registered %}
+                    <div class="alert alert-success">Ви зареєстровані на цю подію</div>
+                    <form method="POST" action="{{ url_for('cancel_registration', event_id=event.id) }}">
+                        <button type="submit" class="btn btn-danger">Скасувати реєстрацію</button>
+                    </form>
+                {% endif %}
+
+                {% if session.role == 'admin' or (session.user_id and event.organizer_id == session.user_id) %}
+                    <a href="{{ url_for('edit_event', event_id=event.id) }}" class="btn btn-secondary">Редагувати подію</a>
+                    <a href="{{ url_for('event_participants', event_id=event.id) }}" class="btn btn-info">Учасники</a>
+                {% endif %}
+            </div>
+        {% else %}
+            <p class="alert alert-info">
+                <a href="{{ url_for('login') }}">Увійдіть</a>, щоб зареєструватися на подію
+            </p>
+        {% endif %}
+        
+        <div class="comments-section">
+            <h2>Коментарі ({{ comments|length }})</h2>
+            
+            {% if session.user_id %}
+                <form method="POST" action="{{ url_for('add_comment', event_id=event.id) }}" class="comment-form">
+                    <div class="form-group">
+                        <textarea name="comment_text" rows="3" placeholder="Залишити коментар..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Додати коментар</button>
+                </form>
+            {% endif %}
+            
+            <div class="comments-list">
+                {% for comment in comments %}
+                    <div class="comment">
+                        <div class="comment-header">
+                            <strong>{{ comment.full_name }}</strong>
+                            <span class="comment-date">{{ comment.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+                        </div>
+                        <p>{{ comment.comment_text }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

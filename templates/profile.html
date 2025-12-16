@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Профіль{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 style="text-align: center; margin-bottom: 1.5rem;">Мій профіль</h1>
+    
+    <div class="profile-card">
+        <h2 style="margin-top: 0; margin-bottom: 1.5rem;">Інформація про користувача:</h2>
+        <div class="profile-info">
+            <div class="info-item">
+                <strong>Ім'я:</strong> {{ user.full_name }}
+            </div>
+            <div class="info-item">
+                <strong>Email:</strong> {{ user.email }}
+            </div>
+            <div class="info-item">
+                <strong>Роль:</strong> 
+                {% if user.role == 'student' %}
+                    Студент
+                {% elif user.role == 'organizer' %}
+                    Організатор
+                {% elif user.role == 'admin' %}
+                    Адміністратор
+                {% else %}
+                    {{ user.role }}
+                {% endif %}
+            </div>
+            {% if user.university %}
+                <div class="info-item">
+                    <strong>Університет:</strong> {{ user.university }}
+                </div>
+            {% endif %}
+            <div class="info-item">
+                <strong>Дата реєстрації:</strong> {{ user.created_at.strftime('%d.%m.%Y') }}
+            </div>
+        </div>
+    </div>
+    
+    <div class="registrations-section" style="margin-top: 2.5rem;">
+        <h2>Мої реєстрації на події ({{ registrations|length }})</h2>
+        
+        {% if registrations %}
+            <div class="registrations-list">
+                {% for reg in registrations %}
+                    <div class="registration-card">
+                        <div class="registration-header">
+                            <h3>{{ reg.title }}</h3>
+                            <span class="status-badge status-{{ reg.status }}">
+                                {% if reg.status == 'registered' %}Зареєстрований
+                                {% elif reg.status == 'cancelled' %}Скасований
+                                {% elif reg.status == 'pending' %}Очікує
+                                {% else %}{{ reg.status }}
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="registration-info">
+                            <div>📅 {{ reg.event_date.strftime('%d.%m.%Y %H:%M') }}</div>
+                            <div>📍 {{ reg.location }}</div>
+                            <div>📝 Зареєстровано: {{ reg.registration_date.strftime('%d.%m.%Y') }}</div>
+                        </div>
+                        <a href="{{ url_for('event_detail', event_id=reg.event_id) }}" class="btn btn-secondary">Переглянути подію</a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-center">Ви ще не зареєстровані на жодну подію</p>
+            <div class="text-center">
+                <a href="{{ url_for('events') }}" class="btn btn-primary">Переглянути події</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

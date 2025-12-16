@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Учасники події{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Учасники події: {{ event.title }}</h1>
+    
+    <div class="event-summary">
+        <p><strong>📅 Дата:</strong> {{ event.event_date.strftime('%d.%m.%Y %H:%M') }}</p>
+        <p><strong>📍 Місце:</strong> {{ event.location }}</p>
+        <p><strong>👥 Зареєстровано:</strong> {{ event.current_participants }}/{{ event.max_participants }}</p>
+    </div>
+
+    <div class="add-participant-card">
+        <form method="POST" action="{{ url_for('add_participant', event_id=event.id) }}" class="add-participant-form">
+            <label for="email">Додати учасника за email:</label>
+            <div class="add-participant-row">
+                <input type="email" id="email" name="email" placeholder="email@example.com" required>
+                <button type="submit" class="btn btn-success">Додати</button>
+            </div>
+        </form>
+    </div>
+    
+    {% if participants %}
+        <div class="participants-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Ім'я</th>
+                        <th>Email</th>
+                        <th>Університет</th>
+                        <th>Дата реєстрації</th>
+                        <th>Статус</th>
+                        <th>Дії</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for participant in participants %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ participant.full_name }}</td>
+                            <td>{{ participant.email }}</td>
+                            <td>{{ participant.university or '-' }}</td>
+                            <td>{{ participant.registration_date.strftime('%d.%m.%Y %H:%M') }}</td>
+                            <td>
+                                <span class="status-badge status-{{ participant.status }}">
+                                    {% if participant.status == 'registered' %}Зареєстрований
+                                    {% elif participant.status == 'cancelled' %}Скасований
+                                    {% elif participant.status == 'pending' %}Очікує
+                                    {% else %}{{ participant.status }}
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                {% if participant.status != 'cancelled' %}
+                                    <form method="POST" action="{{ url_for('remove_participant', event_id=event.id, user_id=participant.user_id) }}">
+                                        <button type="submit" class="btn btn-danger">Видалити</button>
+                                    </form>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-center">Немає зареєстрованих учасників</p>
+    {% endif %}
+    
+    <div class="text-center">
+        <a href="{{ url_for('my_events') }}" class="btn btn-secondary">Назад до моїх подій</a>
+    </div>
+</div>
+{% endblock %}

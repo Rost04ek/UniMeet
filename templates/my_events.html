@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Мої події{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>Мої події</h1>
+        <a href="{{ url_for('create_event') }}" class="btn btn-success">+ Створити подію</a>
+    </div>
+    
+    {% if events %}
+        <div class="events-list">
+            {% for event in events %}
+                <div class="event-card-large">
+                    <div class="event-header">
+                        <div>
+                            <span class="event-category">{{ event.category_name }}</span>
+                            <h3>{{ event.title }}</h3>
+                        </div>
+                        <span class="event-status status-{{ event.status }}">{{ event.status|translate_status }}</span>
+                    </div>
+                    
+                    <p class="event-description">{{ event.description[:150] }}...</p>
+                    
+                    <div class="event-details">
+                        <div class="detail-item">
+                            <strong>📅 Дата:</strong> {{ event.event_date.strftime('%d.%m.%Y %H:%M') }}
+                        </div>
+                        <div class="detail-item">
+                            <strong>📍 Місце:</strong> {{ event.location }}
+                        </div>
+                        <div class="detail-item">
+                            <strong>👥 Учасників:</strong> {{ event.current_participants }}/{{ event.max_participants }}
+                        </div>
+                    </div>
+                    
+                    <div class="event-actions">
+                        <a href="{{ url_for('event_detail', event_id=event.id) }}" class="btn btn-primary">Переглянути</a>
+                        <a href="{{ url_for('edit_event', event_id=event.id) }}" class="btn btn-secondary">Редагувати</a>
+                        <a href="{{ url_for('event_participants', event_id=event.id) }}" class="btn btn-info">Учасники</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <p>Ви ще не створили жодної події</p>
+            <a href="{{ url_for('create_event') }}" class="btn btn-success">Створити першу подію</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

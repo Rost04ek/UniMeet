@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Головна - UniMeet{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="container">
+        <h1>Знайдіть свою наступну студентську подію!</h1>
+        <p>Платформа для організації та участі у студентських конференціях, семінарах та заходах</p>
+    </div>
+</section>
+
+<section class="upcoming-events">
+    <div class="container">
+        <h2>Найближчі події</h2>
+        {% if events %}
+            <div class="events-carousel">
+                <button class="carousel-btn prev" aria-label="Попередні події">‹</button>
+                <div class="carousel-track" data-carousel>
+                    {% for event in events[:6] %}
+                    <div class="event-card" role="article">
+                        <div class="event-header">
+                            <div class="event-badges">
+                                <span class="event-category">{{ event.category_name }}</span>
+                                {% if event.is_online %}
+                                    <span class="event-online-badge">🌐 Онлайн</span>
+                                {% endif %}
+                            </div>
+                            <span class="event-date">{{ event.event_date.strftime('%d.%m.%Y') }}</span>
+                        </div>
+                        <h3>{{ event.title }}</h3>
+                        <p class="event-description">{{ event.description[:120] }}...</p>
+                        <div class="event-info">
+                            <span>📍 {{ event.location }}</span>
+                            <span>👥 {{ event.current_participants }}/{{ event.max_participants }}</span>
+                        </div>
+                        <a href="{{ url_for('event_detail', event_id=event.id) }}" class="btn btn-secondary">Детальніше</a>
+                    </div>
+                    {% endfor %}
+                </div>
+                <button class="carousel-btn next" aria-label="Наступні події">›</button>
+            </div>
+        {% else %}
+            <p class="text-center">Наразі немає майбутніх подій</p>
+        {% endif %}
+    </div>
+</section>
+
+<section class="all-events-section">
+    <div class="container" style="text-align: center;">
+        <a href="{{ url_for('events') }}" class="btn btn-primary">Усі події</a>
+    </div>
+</section>
+
+<section class="categories">
+    <div class="container">
+        <h2>Категорії подій</h2>
+        <div class="categories-grid">
+            {% for category in categories %}
+                <a href="{{ url_for('events', category=category.id) }}" class="category-card">
+                    <h3>
+                        {% if category.name.lower() == 'networking' %}🤝
+                        {% elif category.name.lower() in ['конференція', 'конференція '] %}🎤
+                        {% elif category.name.lower() in ['культурна подія', 'культурна подiя'] %}🎭
+                        {% elif category.name.lower() == 'семінар' %}📚
+                        {% elif category.name.lower() == 'спортивна подія' %}🏅
+                        {% elif category.name.lower() == 'хакатон' %}💻
+                        {% else %}📌
+                        {% endif %}
+                        {{ category.name }}
+                    </h3>
+                    <p>{{ category.description }}</p>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Реєстрація{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container">
+        <h2>Реєстрація нового користувача</h2>
+        <form method="POST" action="{{ url_for('register') }}" class="form">
+            <div class="form-group">
+                <label for="email">Email: <span class="required-star">*</span></label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Пароль: <span class="required-star">*</span></label>
+                <div class="password-input-wrapper">
+                    <input type="password" id="password" name="password" required minlength="6">
+                    <button type="button" class="toggle-password" data-target="password" aria-label="Показати пароль">👁</button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password_confirm">Повтор пароля: <span class="required-star">*</span></label>
+                <div class="password-input-wrapper">
+                    <input type="password" id="password_confirm" name="password_confirm" required minlength="6">
+                    <button type="button" class="toggle-password" data-target="password_confirm" aria-label="Показати пароль">👁</button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="full_name">Повне ім'я: <span class="required-star">*</span></label>
+                <input type="text" id="full_name" name="full_name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="university">Університет: <span class="required-star">*</span></label>
+                <div class="autocomplete-wrapper">
+                    <input type="text" id="university" name="university" autocomplete="off" placeholder="" required>
+                    <div class="autocomplete-dropdown" id="university-dropdown">
+                        {% for uni in universities %}
+                            <div class="autocomplete-item" data-value="{{ uni.university }}">{{ uni.university }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Зареєструватися</button>
+        </form>
+        
+        <p class="text-center">
+            Вже маєте акаунт? <a href="{{ url_for('login') }}">Увійти</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

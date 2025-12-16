@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Події{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>UniMeet</h1>
+    
+    <div class="filters">
+        <form method="GET" action="{{ url_for('events') }}" class="filter-form">
+            <div class="form-group">
+                <label for="status">Статус:</label>
+                <select name="status" id="status" onchange="this.form.submit()">
+                    <option value="upcoming" {% if selected_status == 'upcoming' %}selected{% endif %}>Майбутні</option>
+                    <option value="ongoing" {% if selected_status == 'ongoing' %}selected{% endif %}>Поточні</option>
+                    <option value="completed" {% if selected_status == 'completed' %}selected{% endif %}>Завершені</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="category">Категорія:</label>
+                <select name="category" id="category" onchange="this.form.submit()">
+                    <option value="">Всі категорії</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}" {% if selected_category == category.id|string %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+    </div>
+    
+    {% if events %}
+        <div class="events-list">
+            {% for event in events %}
+                <div class="event-card-large">
+                    <div class="event-header">
+                        <div>
+                            <span class="event-category">{{ event.category_name }}</span>
+                            <h3>{{ event.title }}</h3>
+                        </div>
+                        <span class="event-status status-{{ event.status }}">{{ event.status|translate_status }}</span>
+                    </div>
+                    
+                    <p class="event-description">{{ event.description[:200] }}...</p>
+                    
+                    <div class="event-details">
+                        <div class="detail-item">
+                            <strong>📅 Дата:</strong> {{ event.event_date.strftime('%d.%m.%Y %H:%M') }}
+                        </div>
+                        <div class="detail-item">
+                            <strong>📍 Місце:</strong> {{ event.location }}
+                        </div>
+                        <div class="detail-item">
+                            <strong>👤 Організатор:</strong> {{ event.organizer_name }}
+                        </div>
+                        <div class="detail-item">
+                            <strong>👥 Учасники:</strong> {{ event.current_participants }}/{{ event.max_participants }}
+                        </div>
+                    </div>
+                    
+                    <div class="event-actions">
+                        <a href="{{ url_for('event_detail', event_id=event.id) }}" class="btn btn-primary">Детальніше</a>
+                        {% if session.role == 'admin' or (session.user_id and event.organizer_id == session.user_id) %}
+                            <a href="{{ url_for('edit_event', event_id=event.id) }}" class="btn btn-secondary">Редагувати</a>
+                            <a href="{{ url_for('event_participants', event_id=event.id) }}" class="btn btn-info">Учасники</a>
+                            <form method="POST" action="{{ url_for('delete_event', event_id=event.id) }}" onsubmit="return confirm('Видалити цю подію?');" style="display:inline-block;">
+                                <button type="submit" class="btn btn-danger">Видалити</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-center">Подій не знайдено</p>
+    {% endif %}
+</div>
+{% endblock %}
