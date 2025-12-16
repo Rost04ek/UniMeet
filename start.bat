@@ -1,78 +1,20 @@
 @echo off
-setlocal enabledelayedexpansion
-chcp 65001 >nul 2>&1
-cls
+setlocal
 
-echo ==========================================
-echo   UniMeet - Система організації подій
-echo ==========================================
-echo.
-
-REM Перевірка Python
-python --version >nul 2>&1
-if errorlevel 1 (
-    echo [ПОМИЛКА] Python не встановлено!
-    echo Завантажте Python з https://www.python.org/
-    pause
-    exit /b 1
+rem Quick launcher for UniMeet (dev mode)
+if not exist venv\Scripts\python.exe (
+    echo [INFO] Creating virtual environment...
+    python -m venv venv || goto :error
 )
 
-echo [OK] Python встановлено
+call venv\Scripts\activate || goto :error
+python -m pip install -r requirements.txt || goto :error
 
-REM Перевірка віртуального середовища
-if not exist "venv\" (
-    echo.
-    echo Створення віртуального середовища...
-    python -m venv venv
-    if errorlevel 1 (
-        echo [ПОМИЛКА] Не вдалось створити віртуальне середовище!
-        pause
-        exit /b 1
-    )
-    echo [OK] Віртуальне середовище створено
-)
+set FLASK_APP=app.py
+set FLASK_ENV=development
+python app.py
+goto :eof
 
-REM Активація віртуального середовища
-echo.
-echo Активація віртуального середовища...
-if not exist "venv\Scripts\python.exe" (
-    echo [ПОМИЛКА] Віртуальне середовище пошкоджено!
-    pause
-    exit /b 1
-)
-
-REM Встановлення залежностей
-echo.
-echo Перевірка та встановлення залежностей...
-call venv\Scripts\python.exe -m pip install --upgrade pip
-if errorlevel 1 (
-    echo [ПОМИЛКА] Не вдалось оновити pip!
-    pause
-    exit /b 1
-)
-
-call venv\Scripts\python.exe -m pip install -r requirements.txt
-if errorlevel 1 (
-    echo [ПОМИЛКА] Не вдалось встановити залежності!
-    pause
-    exit /b 1
-)
-
-REM Перевірка бази даних
-echo.
-echo Перевірка бази даних...
-if not exist "database\" (
-    mkdir database
-    echo [OK] Папка database створена
-)
-
-REM Запуск додатку
-echo.
-echo ==========================================
-echo   Запуск веб-додатку...
-echo ==========================================
-echo.
-call venv\Scripts\python.exe app.py
-
-endlocal
-pause
+:error
+echo [ERROR] Startup failed. Check the messages above.
+exit /b 1
