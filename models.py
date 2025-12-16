@@ -13,11 +13,6 @@ class Database:
     def connect(self):
         """Підключення до бази даних"""
         try:
-            print(f"\n📡 Спроба підключення до БД...")
-            print(f"   Хост: {self.config.MYSQL_HOST}:{self.config.MYSQL_PORT}")
-            print(f"   Користувач: {self.config.MYSQL_USER}")
-            print(f"   База даних: {self.config.MYSQL_DB}")
-            
             self.connection = mysql.connector.connect(
                 host=self.config.MYSQL_HOST,
                 user=self.config.MYSQL_USER,
@@ -25,14 +20,9 @@ class Database:
                 database=self.config.MYSQL_DB,
                 port=self.config.MYSQL_PORT
             )
-            print("✅ Успішно підключено до БД!\n")
             return self.connection
         except mysql.connector.Error as err:
-            print(f"\n❌ Помилка підключення до БД: {err}")
-            print(f"\n⚠️  Перевірте файл .env:")
-            print(f"   - MYSQL_HOST має бути адресою сервера БД")
-            print(f"   - Переконайтеся, що сервер MySQL запущено")
-            print(f"   - Перевірте права доступу користувача\n")
+            print(f"Помилка підключення до БД: {err}")
             return None
     
     def disconnect(self):
