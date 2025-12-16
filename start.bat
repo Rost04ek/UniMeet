@@ -1,6 +1,10 @@
 @echo off
+setlocal enabledelayedexpansion
+chcp 65001 >nul 2>&1
+cls
+
 echo ==========================================
-echo   Система організації студентських подій
+echo   UniMeet - Система організації подій
 echo ==========================================
 echo.
 
@@ -20,26 +24,46 @@ if not exist "venv\" (
     echo.
     echo Створення віртуального середовища...
     python -m venv venv
+    if errorlevel 1 (
+        echo [ПОМИЛКА] Не вдалось створити віртуальне середовище!
+        pause
+        exit /b 1
+    )
     echo [OK] Віртуальне середовище створено
 )
 
 REM Активація віртуального середовища
 echo.
 echo Активація віртуального середовища...
-call venv\Scripts\activate.bat
+if not exist "venv\Scripts\python.exe" (
+    echo [ПОМИЛКА] Віртуальне середовище пошкоджено!
+    pause
+    exit /b 1
+)
 
 REM Встановлення залежностей
 echo.
 echo Перевірка та встановлення залежностей...
-pip install -r requirements.txt
-
-REM Перевірка .env файлу
-if not exist ".env" (
-    echo.
-    echo [УВАГА] Файл .env не знайдено!
-    echo Створіть файл .env на основі .env.example
-    echo та налаштуйте параметри підключення до MySQL
+call venv\Scripts\python.exe -m pip install --upgrade pip
+if errorlevel 1 (
+    echo [ПОМИЛКА] Не вдалось оновити pip!
     pause
+    exit /b 1
+)
+
+call venv\Scripts\python.exe -m pip install -r requirements.txt
+if errorlevel 1 (
+    echo [ПОМИЛКА] Не вдалось встановити залежності!
+    pause
+    exit /b 1
+)
+
+REM Перевірка бази даних
+echo.
+echo Перевірка бази даних...
+if not exist "database\" (
+    mkdir database
+    echo [OK] Папка database створена
 )
 
 REM Запуск додатку
@@ -48,12 +72,7 @@ echo ==========================================
 echo   Запуск веб-додатку...
 echo ==========================================
 echo.
-echo Додаток буде доступний за адресою:
-echo http://localhost:5000
-echo.
-echo Для зупинки натисніть Ctrl+C
-echo.
+call venv\Scripts\python.exe app.py
 
-python app.py
-
+endlocal
 pause
