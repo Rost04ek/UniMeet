@@ -58,12 +58,26 @@ if errorlevel 1 (
     exit /b 1
 )
 
-REM Перевірка бази даних
+REM Перевірка .env файлу
 echo.
-echo Перевірка бази даних...
-if not exist "database\" (
-    mkdir database
-    echo [OK] Папка database створена
+echo Перевірка конфігурації бази даних...
+if not exist ".env" (
+    echo [УВАГА] Файл .env не знайдено!
+    echo.
+    echo Будь ласка, налаштуйте параметри підключення до MySQL:
+    echo.
+    copy .env.example .env >nul
+    echo [OK] Файл .env створено з шаблону
+    echo.
+    echo Відредагуйте файл .env та вкажіть:
+    echo - MYSQL_HOST (адреса сервера БД, за замовчуванням localhost)
+    echo - MYSQL_USER (користувач БД)
+    echo - MYSQL_PASSWORD (пароль)
+    echo - MYSQL_DB (назва бази даних)
+    echo.
+    pause
+) else (
+    echo [OK] Конфігурація знайдена
 )
 
 REM Запуск додатку
