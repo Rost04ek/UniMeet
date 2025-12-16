@@ -34,6 +34,8 @@ UniMeet/
 ## Підготовка середовища
 Перед стартом потрібні Python 3.10+ і MySQL 8.0+.
 
+!!!При запуску Start.bat, 1 і 2 пункт можна пропустити!!!
+
 1) Створіть та активуйте віртуальне середовище
 ```bash
 python -m venv venv
@@ -47,7 +49,7 @@ source venv/bin/activate  # macOS/Linux
 pip install -r requirements.txt
 ```
 
-3) Створіть .env у корені
+3) В файлі .env змініть дані(В більшості тільки пароль)
 ```env
 MYSQL_HOST=localhost
 MYSQL_USER=root
@@ -59,6 +61,7 @@ SECRET_KEY=change_me
 DEBUG=True
 ```
 
+!!!Обовязково розгорнути базу даних, інакше не запуститься програма!!!
 4) Розгорніть базу даних
 ```sql
 CREATE DATABASE student_events_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -93,3 +96,4 @@ python app.py
 
 ## Ліцензія
 Проєкт створено як курсова робота; використовуйте в навчальних цілях або розширюйте на свій розсуд.
+
